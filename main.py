@@ -10,36 +10,56 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
+from selenium.webdriver.support.ui import Select
+
+
+def get_element_content_by_class(driver, classname):
+    output = []
+    blocks = driver.find_elements_by_class_name(classname)
+    for block in blocks:
+        # import pdb; pdb.set_trace()
+        output.append(block.text.split('\n'))
+    return output
+
+def click_element_by_class(driver, classname, click_order):
+    element = driver.find_elements_by_class_name(classname)
+    element[click_order].click()
+
 
 driver = webdriver.Chrome(ChromeDriverManager().install())
-# driver.get("http://www.espn.com/nba/playbyplay?gameId=400974939")
-driver.get("https://www.wongnai.com/places/all-seasons-place")
-
-# https://www.wongnai.com/places/all-seasons-place
-
-# load complete HTML file
+# driver.get("https://www.wongnai.com/places/all-seasons-place")
+driver.get("https://www.wongnai.com/places/all-seasons-place?page.number=6")
 
 
-element = driver.find_element_by_class_name("sc-AxiKw.cRbPuG")
-element.click()
+class_of_close_notice_button = 'sc-AxiKw.cRbPuG'
+click_element_by_class(driver, class_of_close_notice_button, 0)
 
 result = driver.page_source
-# regular expression
 
-blocks = driver.find_elements_by_class_name("sc-1p1cxjo-0.idaVvx")
-for block in blocks:
-	print(block.text.split('\n'))
 
-element = driver.find_element_by_class_name("sc-AxiKw.ghKQyp")
-element.click()
-print('find solution to wait the page load complete before running next element')
+while True:
+    class_of_content = 'sc-1p1cxjo-0.idaVvx'
+    result = get_element_content_by_class(driver, class_of_content)
+    print(result)
+    if len(result) == 0:
+        break
+    else:
+        btn_result = []
+        class_of_next_page_button = 'sc-AxiKw.ghKQyp'
+        btn_result = get_element_content_by_class(driver, class_of_next_page_button)
+        if len(btn_result) == 1 and 'ย้อนกลับ' in btn_result[0][0]:
+            break
+        click_element_by_class(driver, class_of_next_page_button, len(btn_result) - 1)
+        sleep(10)
+
+print("Done")
+
 # https://stackoverflow.com/questions/37787453/selenium-python-how-to-wait-for-a-page-to-load-after-a-click
-print('==============')
-sleep(10)
+# sleep(10)
 # element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "normal-priority-modal")))
-blocks = driver.find_elements_by_class_name("sc-1p1cxjo-0.idaVvx")
-for block in blocks:
-	print(block.text.split('\n'))
+# blocks = driver.find_elements_by_class_name("sc-1p1cxjo-0.idaVvx")
+# for block in blocks:
+#     print(block.text.split('\n'))
 
 # title = '<h2 class="sc-1qge0b2-0 epxHvt sc-10ino0a-1 dkzaRG">(.+?)</h2>'
 # re1 = re.compile(title)
