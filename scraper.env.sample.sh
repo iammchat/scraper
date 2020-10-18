@@ -1,0 +1,1 @@
+conda create -n scraper python=3.7.3
